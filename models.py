@@ -25,8 +25,15 @@ def db_drop_and_create_all():
         release_date='02/12/2023'
     )
 
-
     movie.insert()
+
+    actor = Actors(
+        name='title',
+        age=12,
+        gender='men'
+    )
+
+    actor.insert()
 # ROUTES
 
 
