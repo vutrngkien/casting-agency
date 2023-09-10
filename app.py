@@ -14,7 +14,7 @@ db_drop_and_create_all()
 
 @app.route('/')
 def hello():
-    return 'Hello, World!'
+    return "hello world!"
 
 @app.route('/actors')
 @requires_auth("get:actors")
