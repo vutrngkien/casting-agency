@@ -4,6 +4,7 @@ from sqlalchemy import exc
 import json
 from flask_cors import CORS
 from models import setup_db, db_drop_and_create_all, Actors, Movies
+from auth import AuthError, requires_auth
 
 app = Flask(__name__)
 setup_db(app)
@@ -16,17 +17,20 @@ def hello():
     return 'Hello, World!'
 
 @app.route('/actors')
-def get_actors():
+@requires_auth("get:actors")
+def get_actors(payload):
     actors = Actors.query.all()
     return jsonify({"success": True, "actors": [actor.format() for actor in actors]})
 
 @app.route('/movies')
-def get_movies():
+@requires_auth("get:movies")
+def get_movies(payload):
     movies = Movies.query.all()
     return jsonify({"success": True, "movies": [movie.format() for movie in movies]})
 
 @app.route('/actors/<int:id>', methods=["DELETE"])
-def delete_actor(id):
+@requires_auth("delete:actors")
+def delete_actor(payload, id):
     actor = Actors.query.get(id)
     if actor:
         actor.delete()
@@ -35,7 +39,8 @@ def delete_actor(id):
         abort(422)
 
 @app.route('/movies/<int:id>', methods=["DELETE"])
-def delete_movie(id):
+@requires_auth("delete:movies")
+def delete_movie(payload, id):
     movie = Movies.query.get(id)
     if movie:
         movie.delete()
@@ -44,7 +49,8 @@ def delete_movie(id):
         abort(422)
 
 @app.route('/movies', methods=["POST"])
-def create_movie():
+@requires_auth("post:movies")
+def create_movie(payload):
     data = request.get_json()
     try:
         if 'title' in data and 'release_date' in data:
@@ -57,7 +63,8 @@ def create_movie():
         abort(500)
 
 @app.route('/actors', methods=["POST"])
-def create_actor():
+@requires_auth("post:actors")
+def create_actor(payload):
     data = request.get_json()
     try:
         if 'name' in data and 'age' in data and 'gender' in data:
@@ -70,7 +77,8 @@ def create_actor():
         abort(500)
 
 @app.route('/actors/<int:id>', methods=["PATCH"])
-def edit_actor(id):
+@requires_auth("patch:actors")
+def edit_actor(payload, id):
     data = request.get_json()
     actor = Actors.query.get(id)
     if not actor:
@@ -88,7 +96,8 @@ def edit_actor(id):
         abort(500)
 
 @app.route('/movies/<int:id>', methods=["PATCH"])
-def edit_movie(id):
+@requires_auth("patch:movies")
+def edit_movie(payload, id):
     data = request.get_json()
     movie = Movies.query.get(id)
     if not movie:
@@ -103,6 +112,30 @@ def edit_movie(id):
             return jsonify({"success": False})
     except:
         abort(500)
+
+@app.errorhandler(422)
+def unprocessable(error):
+    return jsonify({
+        "success": False,
+        "error": 422,
+        "message": "unprocessable"
+    }), 422
+
+
+@app.errorhandler(404)
+def unprocessable(error):
+    return jsonify({
+        "success": False,
+        "error": 404,
+        "message": "resource not found"
+    }), 404
+
+
+@app.errorhandler(AuthError)
+def handle_auth_error(error):
+    return jsonify({
+        "message": "authentication error"
+    })
 
 # Run the app
 if __name__ == '__main__':
