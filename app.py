@@ -12,9 +12,11 @@ CORS(app)
 
 db_drop_and_create_all()
 
+
 @app.route('/')
 def hello():
     return "hello world!"
+
 
 @app.route('/actors')
 @requires_auth("get:actors")
@@ -22,11 +24,13 @@ def get_actors(payload):
     actors = Actors.query.all()
     return jsonify({"success": True, "actors": [actor.format() for actor in actors]})
 
+
 @app.route('/movies')
 @requires_auth("get:movies")
 def get_movies(payload):
     movies = Movies.query.all()
     return jsonify({"success": True, "movies": [movie.format() for movie in movies]})
+
 
 @app.route('/actors/<int:id>', methods=["DELETE"])
 @requires_auth("delete:actors")
@@ -38,6 +42,7 @@ def delete_actor(payload, id):
     else:
         abort(422)
 
+
 @app.route('/movies/<int:id>', methods=["DELETE"])
 @requires_auth("delete:movies")
 def delete_movie(payload, id):
@@ -48,19 +53,22 @@ def delete_movie(payload, id):
     else:
         abort(422)
 
+
 @app.route('/movies', methods=["POST"])
 @requires_auth("post:movies")
 def create_movie(payload):
     data = request.get_json()
     try:
         if 'title' in data and 'release_date' in data:
-            movie = Movies(title=data.get('title'), release_date=data.get('release_date'))
+            movie = Movies(title=data.get('title'),
+                           release_date=data.get('release_date'))
             movie.insert()
-            return jsonify({"success": True, "movie": movie.format()}) 
+            return jsonify({"success": True, "movie": movie.format()})
         else:
             return jsonify({"success": False})
     except:
         abort(500)
+
 
 @app.route('/actors', methods=["POST"])
 @requires_auth("post:actors")
@@ -68,13 +76,15 @@ def create_actor(payload):
     data = request.get_json()
     try:
         if 'name' in data and 'age' in data and 'gender' in data:
-            actor = Actors(name=data.get('name'), age=data.get('age'), gender=data.get('gender'))
+            actor = Actors(name=data.get('name'), age=data.get(
+                'age'), gender=data.get('gender'))
             actor.insert()
-            return jsonify({"success": True, "actor": actor.format()}) 
+            return jsonify({"success": True, "actor": actor.format()})
         else:
             return jsonify({"success": False})
     except:
         abort(500)
+
 
 @app.route('/actors/<int:id>', methods=["PATCH"])
 @requires_auth("patch:actors")
@@ -95,6 +105,7 @@ def edit_actor(payload, id):
     except:
         abort(500)
 
+
 @app.route('/movies/<int:id>', methods=["PATCH"])
 @requires_auth("patch:movies")
 def edit_movie(payload, id):
@@ -112,6 +123,7 @@ def edit_movie(payload, id):
             return jsonify({"success": False})
     except:
         abort(500)
+
 
 @app.errorhandler(422)
 def unprocessable(error):
@@ -134,10 +146,11 @@ def unprocessable(error):
 @app.errorhandler(AuthError)
 def handle_auth_error(error):
     return jsonify({
+        "success": False,
         "message": "authentication error"
     })
+
 
 # Run the app
 if __name__ == '__main__':
     app.run(debug=True)
-
