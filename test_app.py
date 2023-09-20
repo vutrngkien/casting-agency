@@ -137,6 +137,61 @@ class CastingAgencyTestCase(unittest.TestCase):
         data_post = json.loads(res_post.data)
         self.assertFalse(data_post['success'])
 
+    def test_edit_movie_success(self):
+        movie = {
+            "title": "test1",
+            "release_date": "02/12/2024"
+        }
+        res_post = self.client().post('/movies', json=movie, headers=self.producer_header)
+        data_post = json.loads(res_post.data)
+        self.assertTrue(data_post['success'])
+        res = self.client().patch(
+            '/movies/' + str(data_post['movie']['id']), json=data_post['movie'], headers=self.producer_header)
+        data = json.loads(res.data)
+        self.assertTrue(data['success'])
+
+    def test_edit_movie_fail(self):
+        movie = {
+            "title": "test1",
+            "release_date": "02/12/2024"
+        }
+        res_post = self.client().post('/movies', json=movie, headers=self.producer_header)
+        data_post = json.loads(res_post.data)
+        self.assertTrue(data_post['success'])
+        if data_post['success'] != False:
+            res = self.client().patch(
+                '/movies/' + str(data_post['movie']['id']), json=data_post['movie'], headers=self.assistant_header)
+            data = json.loads(res.data)
+            self.assertFalse(data['success'])
+
+    def test_edit_actors_success(self):
+        actor = {
+            'name': '1',
+            'age': 12,
+            'gender': 'man'
+        }
+        res_post = self.client().post('/actors', json=actor, headers=self.producer_header)
+        data_post = json.loads(res_post.data)
+        self.assertTrue(data_post['success'])
+        res = self.client().patch(
+            '/actors/' + str(data_post['actor']['id']), json=data_post['actor'], headers=self.producer_header)
+        data = json.loads(res.data)
+        self.assertTrue(data['success'])
+
+    def test_edit_actors_fail(self):
+        actor = {
+            'name': '1',
+            'age': 12,
+            'gender': 'man'
+        }
+        res_post = self.client().post('/actors', json=actor, headers=self.director_header)
+        data_post = json.loads(res_post.data)
+        self.assertTrue(data_post['success'])
+        res = self.client().patch(
+            '/actors/' + str(data_post['actor']['id']), json=data_post['actor'], headers=self.assistant_header)
+        data = json.loads(res.data)
+        self.assertFalse(data['success'])
+
 
 if __name__ == "__main__":
     unittest.main()
