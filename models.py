@@ -9,6 +9,7 @@ load_dotenv()
 db = SQLAlchemy()
 database_path = os.getenv('DATABASE_PATH')
 
+
 def setup_db(app):
     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -39,7 +40,8 @@ def db_drop_and_create_all():
 
 class Movies(db.Model):
     __tablename__ = 'movies'
-    id = Column(Integer().with_variant(Integer, "postgresql"), primary_key=True)
+    id = Column(Integer().with_variant(
+        Integer, "postgresql"), primary_key=True)
     title = Column(String(100))
     release_date = Column(Date)
 
@@ -63,10 +65,12 @@ class Movies(db.Model):
 
     def __repr__(self):
         return json.dumps(self.format())
-    
+
+
 class Actors(db.Model):
     __tablename__ = 'actors'
-    id = Column(Integer().with_variant(Integer, "postgresql"), primary_key=True)
+    id = Column(Integer().with_variant(
+        Integer, "postgresql"), primary_key=True)
     name = Column(String(100))
     age = Column(Integer)
     gender = Column(String(100))
