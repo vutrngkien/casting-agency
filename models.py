@@ -20,7 +20,7 @@ def setup_db(app):
 def db_drop_and_create_all():
     db.drop_all()
     db.create_all()
-    # add one demo row which is helping in POSTMAN test
+
     movie = Movies(
         title='title',
         release_date='02/12/2023'
@@ -35,7 +35,6 @@ def db_drop_and_create_all():
     )
 
     actor.insert()
-# ROUTES
 
 
 class Movies(db.Model):
